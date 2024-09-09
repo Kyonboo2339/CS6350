@@ -1,70 +1,64 @@
 import sys
-import math
+import Heuristics
 import DataSet
     
 def readFile(CSVfile):
     termList = []
-    print(CSVfile)
     #Basic line reading. Need to sort by label
     with open(CSVfile, 'r') as file:
         for line in file:
             termList.append((line.strip().split(',')))        
 
-    return list
-
-#Return heuristic for dataset
-def informationGain(labelProportions):
-    p_sum = 0
-    for label in labelProportions:
-        p = labelProportions[label]
-        p_sum += p*math.log(p, 2)
-
-    return -1*p_sum
-
-
-def giniIndex(labelProportions):
-    p_sum = 0
-    for label in labelProportions:
-        p_sum += labelProportions[label]**2
-
-    return 1 - p_sum
-
-def majorityError(labelProportions):
-    majorityPercent = float("-inf")
-    for label in labelProportions:
-        if labelProportions[label] > majorityPercent:
-            majorityPercent = labelProportions
-
-    return 1 - majorityPercent
-
-def __main__():
-    ID3()
-    print("done")
-
-__main__()
-#Heuristics
-
-#Information Gain (Entropy)
-#Gini Index
-#Majority Error
+    return termList
+    
 class ID3:
-    def __init__(self, heuristic = informationGain):
-        self.heuristic = heuristic
+    def __init__(self, dataSet, heuristic = 'informationGain'):
+        if heuristic not in dir(Heuristics):
+            raise AttributeError("Heuristic not found")
+        
+        self.heuristic = getattr(Heuristics, heuristic)
         #Read file
-        CSVfile = sys.argv[1]
-        print(readFile(CSVfile))
-        self.data = DataSet(CSVfile)
+        self.data = dataSet
+        print(str(self.chooseAttribute()))
         #Parse it into formats for the ID3 Algorithm
         #Send into ID3 algorithm
     
     def ID3Algorithm(heuristic = None):
         return None
     
+    #Calulate the purity of the set split on a certain attribute
     def calculateGain(self, attributeID):
-        setHeuristic = self.heuristic(self.data.labels)
+        setHeuristic = self.heuristic(self.data.labelProportions())
         attributeSum = 0
-        attributeProportions = self.data.attributeValueProportions()
+        attributeProportions = self.data.attributeValueProportions(attributeID)
+        
         for value in attributeProportions:
-            attributeSum += self.heuristic(attributeProportions[value])
+            attributeWeight = self.data.attributeValueWeight(attributeID, value)
+            attributeSum += attributeWeight*self.heuristic(attributeProportions[value])
             
         return setHeuristic - attributeSum
+    
+    #Choose the best attribute to split the set
+    def chooseAttribute(self):
+        bestAttribute = None
+        maxGain = float("-inf")
+        for attributeID in self.data.attributes:
+            attributeGain = self.calculateGain(attributeID)
+            if attributeGain > maxGain:
+                bestAttribute = attributeID
+                maxGain = attributeGain
+        
+        return bestAttribute
+
+    #Node for the ID3 tree
+    class Node:
+        def __init__(self):
+            return None
+        
+def __main__() :
+    CSVfile = sys.argv[1]  
+    dataSet = DataSet.DataSet(readFile(CSVfile))
+    ID3(dataSet, sys.argv[2])
+    print("done")
+
+__main__()

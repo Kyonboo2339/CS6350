@@ -7,49 +7,58 @@
 class DataSet():
     def __init__(self, termList):
         self.attributes = {i:{} for i in range(len(termList[0]) - 1)}
+        #Tracks how many rows with each attribute value
+        self.attributeValueDistribution = {i:{} for i in range(len(termList[0]) - 1)}
         self.labels = {}
         self.Count = len(termList)
         for row in termList:
             label = row[-1]
-            for attributeID in range(len(row) - 1):
-                attributeValue = row[attributeID]
-                attribute = self.attributes[attributeID]
 
-                if attributeValue not in attribute:
-                    attribute[attributeValue] = {}
-
-                if label not in attribute[attributeValue]:
-                    attribute[attributeValue][label] = []
-                
-                attribute[attributeValue][label].append(row)
-            
             if label not in self.labels:
                 self.labels[label] = []
              
             self.labels[label].append(row)
 
-    #Return a new dataSet split on given attributeID and attributeValue
+            for attributeID in range(len(row) - 1):
+                attributeValue = row[attributeID]
+                attribute = self.attributes[attributeID]
+                valueDistribution = self.attributeValueDistribution[attributeID]
+
+                if attributeValue not in attribute:
+                    attribute[attributeValue] = {}
+                    valueDistribution[attributeValue] = 0
+                
+                valueDistribution[attributeValue] += 1 
+
+                if label not in attribute[attributeValue]:
+                    attribute[attributeValue][label] = []
+                
+                attribute[attributeValue][label].append(row)
+
+    #Return a new DataSet split on given attributeID and attributeValue
     def setSplit(self, attributeID, attributeValue):
         attributeValue = self.attributes[attributeID][attributeValue]
         dataSetRows = [row for label in attributeValue for row in attributeValue[label]]
         return DataSet(dataSetRows)
     
-    #Return percent number of rows for each label for the set
+    #Return percentage of rows assigned to each label for the set
     def labelProportions(self):
-        labelCount = {label: sum(len(self.lables[label]))/self.Count for label in self.labels}
+        labelCount = {label: len(self.labels[label])/self.Count for label in self.labels}
         return labelCount
     
-    #Returns how many rows have an attribute value given attribute
-    def attributeValueCount(self, attributeID):
-        attributeValueCount = {value:sum(len(value[label]) for label in value) for value in self.attributes[attributeID]}
-        return attributeValueCount
+    #Returns the percentage of rows with an attribute value 
+    def attributeValueWeight(self, attributeID, attributeValue):
+        return self.attributeValueDistribution[attributeID][attributeValue]/self.Count
     
-    #Returns count of data to label for each attribute value given attribute 
-    #rows with attribute value/total rows in set
+
+    #Returns a dict of label distributions based on attribute value subsets
     def attributeValueProportions(self, attributeID):
-        #Number of data in each attribute value
-        attributeValueCount = {value:sum(len(value[label]) for label in value) for value in self.attributes[attributeID]}
-        #Proportion of label to attribute value
-        attributeLabelCount = {value:{label:len(value[label])/attributeValueCount[value] for label in value} for value in self.attributes[attributeID]}
+        #Number of rows in each attribute value
+        attributeValueCount = self.attributeValueDistribution[attributeID]
+        #print(attributeValueCount)
+        attribute = self.attributes[attributeID]
+        #print(str(attribute))
+        #Proportion of label to attribute value subset
+        attributeLabelCount = {value:{label:len(attribute[value][label])/attributeValueCount[value] for label in attribute[value]} for value in attribute}
         
         return attributeLabelCount
