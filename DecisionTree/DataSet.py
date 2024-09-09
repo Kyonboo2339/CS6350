@@ -1,14 +1,18 @@
 #Manages the counts of each attribute in the set
-#Set of attributes
-#each attribute has labels 
-#data row is placed for each attribute
 #self.attributes[attributeID] return a dictionary (attributeValue, dictionary of labels)
 #self.attributes[attributeID][attributeValue] returns a dictionary of (label, list of rows with label)
 class DataSet():
-    def __init__(self, termList):
-        self.attributes = {i:{} for i in range(len(termList[0]) - 1)}
-        #Tracks how many rows with each attribute value
-        self.attributeValueDistribution = {i:{} for i in range(len(termList[0]) - 1)}
+    def __init__(self, termList, existingAttributes = None):
+        #Check if there is an existing universe of attribute values.
+        if existingAttributes != None:
+            self.attributes = {attributeID: {value: {label: [] for label in existingAttributes[attributeID][value]} for value in existingAttributes[attributeID]} for attributeID in existingAttributes}
+            self.attributeValueDistribution = {attributeID: {value: 0 for value in existingAttributes[attributeID]} for attributeID in existingAttributes}
+        else:
+            self.attributes = {i:{} for i in range(len(termList[0]) - 1)}
+            #Tracks how many rows with each attribute value
+            self.attributeValueDistribution = {i:{} for i in range(len(termList[0]) - 1)}
+            
+    
         self.labels = {}
         self.Count = len(termList)
         for row in termList:
@@ -34,12 +38,24 @@ class DataSet():
                     attribute[attributeValue][label] = []
                 
                 attribute[attributeValue][label].append(row)
-
     #Return a new DataSet split on given attributeID and attributeValue
     def setSplit(self, attributeID, attributeValue):
         attributeValue = self.attributes[attributeID][attributeValue]
         dataSetRows = [row for label in attributeValue for row in attributeValue[label]]
-        return DataSet(dataSetRows)
+        return DataSet(dataSetRows, self.attributes)
+    
+    def mostCommonLabel(self):
+        commonLabel = None
+        maxCount = float("-inf")
+        for label in self.labels:
+            if len(self.labels[label]) < maxCount:
+                maxCount = len(self.labels[label])
+                commonLabel = label
+        
+        return commonLabel
+    
+    def hasSameLabel(self):
+        return len(self.labels) == 1
     
     #Return percentage of rows assigned to each label for the set
     def labelProportions(self):
@@ -55,9 +71,7 @@ class DataSet():
     def attributeValueProportions(self, attributeID):
         #Number of rows in each attribute value
         attributeValueCount = self.attributeValueDistribution[attributeID]
-        #print(attributeValueCount)
         attribute = self.attributes[attributeID]
-        #print(str(attribute))
         #Proportion of label to attribute value subset
         attributeLabelCount = {value:{label:len(attribute[value][label])/attributeValueCount[value] for label in attribute[value]} for value in attribute}
         

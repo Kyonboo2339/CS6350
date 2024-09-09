@@ -21,3 +21,4 @@ def majorityError(labelProportions):
         majorityPercent = max(majorityPercent, labelProportions[label])
 
     return 1 - majorityPercent
+
