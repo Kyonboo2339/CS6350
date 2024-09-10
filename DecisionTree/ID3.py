@@ -1,31 +1,39 @@
-import sys
 import Heuristics
 import DataSet
-    
+import sys
 class ID3Tree:
-    def __init__(self, dataSet, heuristic = 'informationGain'):
+    def __init__(self, dataSet, heuristic = 'informationGain', depthLimit = 6):
         if heuristic not in dir(Heuristics):
             raise AttributeError("Heuristic not found")
         
         self.heuristic = getattr(Heuristics, heuristic)
         self.data = dataSet
+        self.depthLimit = depthLimit
+        self.rootNode = self.ID3(dataSet, 0)
+        #self.rootNode.preorder()
 
-        self.rootNode = self.ID3(dataSet)
-        print(str(self.chooseAttribute(dataSet)))
+    def predictLabel(self, datum):
+        currNode = self.rootNode
+        while True: 
+            value = datum[currNode.attribute]
+            if isinstance(currNode.branches[value], ID3Tree.ID3Node):
+                currNode = currNode.branches[value]
+            else:
+                return currNode.branches[value]
 
-    def ID3(self, dataSet):
-        if dataSet.hasSameLabel():
+    def ID3(self, dataSet, currDepth):
+        if dataSet.hasSameLabel() or currDepth >= self.depthLimit:
             return dataSet.mostCommonLabel()
         
         #Create a root node 
         root = self.ID3Node(self.chooseAttribute(dataSet))
-        attributeSet = dataSet.attributes[root.attribute]
-        for attributeValue in attributeSet:
+        attributeValues = dataSet.attributes[root.attribute]
+        for attributeValue in attributeValues:
             subset = dataSet.setSplit(root.attribute, attributeValue)
             if subset.attributeValueDistribution[root.attribute][attributeValue] == 0:
                 root.branches[attributeValue] = dataSet.mostCommonLabel()
             else: 
-                root.branches[attributeValue] = self.ID3(subset)
+                root.branches[attributeValue] = self.ID3(subset, currDepth + 1)
 
         return root
 
@@ -60,22 +68,14 @@ class ID3Tree:
             self.branches = {}
             #The attribute the node splits data on
             self.attribute = attribute
-     
 
-        
+        def preorder(self):
+            print(str(self.attribute))
+            
 
-def readFile(CSVfile):
-    termList = []
-    #Basic line reading. Need to sort by label
-    with open(CSVfile, 'r') as file:
-        for line in file:
-            termList.append((line.strip().split(',')))        
+            for branch in self.branches:
+                if isinstance(self.branches[branch], ID3Tree.ID3Node):
+                    print(self.branches[branch].preorder())
 
-    return termList
-       
-def __main__():
-    dataSet = DataSet.DataSet(readFile(CSVfile= sys.argv[1]))
-    ID3Tree(dataSet, heuristic= sys.argv[2])
-    print("done")
 
-__main__()
+

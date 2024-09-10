@@ -38,6 +38,7 @@ class DataSet():
                     attribute[attributeValue][label] = []
                 
                 attribute[attributeValue][label].append(row)
+
     #Return a new DataSet split on given attributeID and attributeValue
     def setSplit(self, attributeID, attributeValue):
         attributeValue = self.attributes[attributeID][attributeValue]
@@ -45,13 +46,14 @@ class DataSet():
         return DataSet(dataSetRows, self.attributes)
     
     def mostCommonLabel(self):
+        #print("number of labels " + str(len(self.labels)))
         commonLabel = None
         maxCount = float("-inf")
         for label in self.labels:
-            if len(self.labels[label]) < maxCount:
+            if len(self.labels[label]) > maxCount:
                 maxCount = len(self.labels[label])
                 commonLabel = label
-        
+              
         return commonLabel
     
     def hasSameLabel(self):
@@ -70,9 +72,20 @@ class DataSet():
     #Returns a dict of label distributions based on attribute value subsets
     def attributeValueProportions(self, attributeID):
         #Number of rows in each attribute value
-        attributeValueCount = self.attributeValueDistribution[attributeID]
+        attributeValuesCounts = self.attributeValueDistribution[attributeID]
         attribute = self.attributes[attributeID]
+
         #Proportion of label to attribute value subset
-        attributeLabelCount = {value:{label:len(attribute[value][label])/attributeValueCount[value] for label in attribute[value]} for value in attribute}
+        attributeLabelCount = {}
+        for value in attribute:
+            attributeLabelCount[value] = {}
+            for label in attribute[value]:
+                attributeLabelCount[value][label] = None
+                if attributeValuesCounts[value] > 0:
+                    attributeLabelCount[value][label] = len(attribute[value][label])/attributeValuesCounts[value]
+                else: 
+                    attributeLabelCount[value][label] = 0
+
+        
         
         return attributeLabelCount

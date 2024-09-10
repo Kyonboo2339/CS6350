@@ -1,9 +1,11 @@
 import math
+
 def informationGain(labelProportions):
     p_sum = 0
     for label in labelProportions:
         p = labelProportions[label]
-        p_sum += p*math.log(p, 2)
+        if p > 0:
+            p_sum += p*math.log(p, 2)
 
     return -1*p_sum
 
