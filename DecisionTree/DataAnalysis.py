@@ -11,41 +11,53 @@ def readFile(CSVfile):
 
     return termList
 
-def predictOnFile(decisionTree, file= sys.argv[2]):
-    testList = readFile(CSVfile= file)
+def predictOnFile(decisionTree, testList):
     incorrectPrediction = 0
 
     for test in testList:
-        prediction= decisionTree.predictLabel(test)
-        # print("test line: " + str(test))
-        # print("prediction: " + str(prediction))
-        # print("actual :" + str(test[-1]))
-        # print("path taken: " + str(path))
-        # print()      
+        prediction= decisionTree.predictLabel(test)     
         if prediction != test[-1]:
             incorrectPrediction += 1
-    #Determine % error of the decision tree
-    print(str(incorrectPrediction) + "/" + str(len(testList)) + " predicted incorrectly")
-    print("Error: " + str(incorrectPrediction/len(testList)))
 
-    
+    return str(incorrectPrediction/len(testList))
 
-    return 
-def __main__():
-    dataSet = DataSet.DataSet(readFile(CSVfile= sys.argv[1]))
+def results(decisionTree, testFile, trainingFile):
+    #Read test file
+    testError = predictOnFile(decisionTree, testFile)
+    trainingError = predictOnFile(decisionTree, trainingFile)
+    return testError, trainingError
+
+def __main__():    
     #Build decision tree
     heuristic = "informationGain"
-    if len(sys.argv) == 4:
-        heuristic = sys.argv[3]
-        
-    decisionTree = ID3.ID3Tree(dataSet, heuristic)
-    #Read test file
-    print("Test Results:" )
-    predictOnFile(decisionTree)
-    print()
-    print("Training Results: ")
-    predictOnFile(decisionTree, sys.argv[1])
+    depth = -1
 
-    print("done")
+    if len(sys.argv) >= 4:
+        heuristic = sys.argv[3]
+        if len(sys.argv) >= 5:
+            depth = int(sys.argv[4])
+
+    trainingFile = readFile(CSVfile= sys.argv[1])
+    testFile = readFile(CSVfile= sys.argv[2])
+    dataSet = DataSet.DataSet(trainingFile, None, None, True, True)
+
+    # if depth == -1:
+    #     depthResults = [] 
+    #     for i in range(1,7):
+    #         decisionTree = ID3.ID3Tree(dataSet, heuristic,  i)
+    #         depthResults.append(results(decisionTree, testFile, trainingFile))
+        
+    #     print("\nHeuristic: " + heuristic)
+    #     print("Depth\tTest Error\t\tTraining Error")
+    #     for i in range(6):
+    #         print("  " + str(i + 1) + "\t" + str(depthResults[i][0]) + "\t" + str(depthResults[i][1]))
+    # else: 
+    #     decisionTree = ID3.ID3Tree(dataSet, heuristic, depth)
+    #     testError, trainingError = results(decisionTree, testFile, trainingFile)
+    #     print("Test Error: " + str(testError) + "  Training Error: " + str(trainingError))
+
+    '''
+    Based on the results for car.csv, the training error cannot exceed the test error.
+    '''
 
 __main__()

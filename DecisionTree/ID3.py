@@ -2,15 +2,14 @@ import Heuristics
 import DataSet
 import sys
 class ID3Tree:
-    def __init__(self, dataSet, heuristic = 'informationGain', depthLimit = 6):
+    def __init__(self, dataSet, heuristic= "informationGain", depthLimit= 6, ):
         if heuristic not in dir(Heuristics):
             raise AttributeError("Heuristic not found")
-        
+
         self.heuristic = getattr(Heuristics, heuristic)
         self.data = dataSet
         self.depthLimit = depthLimit
         self.rootNode = self.ID3(dataSet, 0)
-        #self.rootNode.preorder()
 
     def predictLabel(self, datum):
         currNode = self.rootNode
@@ -22,7 +21,7 @@ class ID3Tree:
                 return currNode.branches[value]
 
     def ID3(self, dataSet, currDepth):
-        if dataSet.hasSameLabel() or currDepth >= self.depthLimit:
+        if dataSet.hasSameLabel() or currDepth > self.depthLimit:
             return dataSet.mostCommonLabel()
         
         #Create a root node 
@@ -68,14 +67,6 @@ class ID3Tree:
             self.branches = {}
             #The attribute the node splits data on
             self.attribute = attribute
-
-        def preorder(self):
-            print(str(self.attribute))
-            
-
-            for branch in self.branches:
-                if isinstance(self.branches[branch], ID3Tree.ID3Node):
-                    print(self.branches[branch].preorder())
 
 
 
