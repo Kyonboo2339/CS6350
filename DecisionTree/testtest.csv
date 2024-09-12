@@ -1,5 +1,6 @@
-41,services,married,secondary,no,0,yes,no,unknown,5,may,114,2,-1,0,unknown,no
-48,blue-collar,single,secondary,no,312,yes,yes,cellular,3,feb,369,2,-1,0,unknown,no
-55,technician,married,secondary,no,1938,no,yes,cellular,18,aug,193,1,386,3,success,yes
-54,admin.,married,tertiary,no,59,yes,no,cellular,10,jul,268,1,-1,0,unknown,no
-34,management,single,tertiary,no,2646,no,no,cellular,14,apr,142,1,-1,0,unknown,yes
+41,management,single,secondary,no,764,no,no,cellular,12,jun,230,2,-1,0,unknown,no
+39,blue-collar,married,secondary,no,49,yes,no,cellular,14,may,566,1,370,2,failure,no
+60,retired,married,primary,no,0,no,no,telephone,30,jul,130,3,-1,0,unknown,no
+31,entrepreneur,single,tertiary,no,247,yes,yes,unknown,2,jun,273,1,-1,0,unknown,no
+26,student,single,unknown,no,2020,no,no,telephone,28,jan,42,3,-1,0,unknown,no
+58,housemaid,married,primary,no,0,yes,no,telephone,9,jul,148,1,-1,0,unknown,no

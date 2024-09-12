@@ -2,6 +2,7 @@ import math
 
 def informationGain(labelProportions):
     p_sum = 0
+    
     for label in labelProportions:
         p = labelProportions[label]
         if p > 0:
@@ -12,7 +13,7 @@ def informationGain(labelProportions):
 
 def giniIndex(labelProportions):
     p_sum = 0
-    for label in labelProportions:
+    for label in labelProportions:   
         p_sum += labelProportions[label]**2
 
     return 1 - p_sum
