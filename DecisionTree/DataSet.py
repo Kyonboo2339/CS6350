@@ -187,9 +187,6 @@ class DataSet():
         for value in attribute:
             attributeValue = value
 
-            # if self.hasNumerics and attributeID in self.numericAttributes:
-            #     attributeValue = self.determineNumericValue(attributeID, value)
-
             attributeLabelCount[attributeValue] = {}
             for label in attribute[value]:
                 attributeLabelCount[attributeValue][label] = None
@@ -203,10 +200,10 @@ class DataSet():
         return attributeLabelCount
     
     def determineNumericValue(self, attributeID, numeric):
-        value = 0
+        value = 1
         median = self.numericThresholds[attributeID]
         if int(numeric) <= median:
-            value = 1
+            value = 0
 
         return value
     
