@@ -35,9 +35,9 @@ def __main__():
     trainingFile_bank = readFile(sys.argv[3])
     testFile_bank = readFile(sys.argv[4])
 
-    dataSet_car = DataSet.DataSet(trainingFile_car, None, None, None, False, False)
-    dataSet_bank_unknown = DataSet.DataSet(trainingFile_bank, None, None, None, True, False)
-    dataSet_bank_unknownMajority = DataSet.DataSet(trainingFile_bank, None, None, None, True, True)
+    dataSet_car = DataSet.DataSet(trainingFile_car, None, None, False, False)
+    dataSet_bank_unknown = DataSet.DataSet(trainingFile_bank, None, None, True, False)
+    dataSet_bank_unknownMajority = DataSet.DataSet(trainingFile_bank, None, None, True, True)
     heuristics = ["informationGain", "giniIndex", "majorityError"]
     print("Car results:\n")
      

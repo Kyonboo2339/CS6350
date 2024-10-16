@@ -200,9 +200,6 @@ class DataSet():
         for value in attribute:
             attributeValue = value
 
-            # if self.hasNumerics and attributeID in self.numericAttributes:
-            #     attributeValue = self.determineNumericValue(attributeID, value)
-
             attributeLabelCount[attributeValue] = {}
             for label in attribute[value]:
                 attributeLabelCount[attributeValue][label] = None

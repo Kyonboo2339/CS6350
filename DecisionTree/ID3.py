@@ -2,7 +2,7 @@ import Heuristics
 import DataSet
 import sys
 class ID3Tree:
-    def __init__(self, dataSet, heuristic, depthLimit):
+    def __init__(self, dataSet, heuristic= "informationGain", depthLimit= 6):
         if heuristic not in dir(Heuristics):
             raise AttributeError("Heuristic not found")
 
