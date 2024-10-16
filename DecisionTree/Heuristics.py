@@ -22,6 +22,7 @@ def majorityError(labelProportions):
     majorityPercent = float("-inf")
     for label in labelProportions:
         majorityPercent = max(majorityPercent, labelProportions[label])
-
+    if majorityPercent < 0:
+        return 0
     return 1 - majorityPercent
 

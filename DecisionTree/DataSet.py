@@ -2,18 +2,24 @@
 #self.attributes[attributeID] return a dictionary (attributeValue, dictionary of labels)
 #self.attributes[attributeID][attributeValue] returns a dictionary of (label, list of rows with label)
 class DataSet():
-    def __init__(self, termList, existingAttributes = None, numericThresholds = None, hasNumerics= False, unknownIsMajority= False):
+    def __init__(self, termList, existingAttributes = None, majorityAttributeValues = None, numericThresholds = None, hasNumerics= False, unknownIsMajority= False):
         #Check if there is an existing universe of attribute values.
         if existingAttributes != None:
             self.attributes = {attributeID: {value: {label: [] for label in existingAttributes[attributeID][value]} for value in existingAttributes[attributeID]} for attributeID in existingAttributes}
             self.attributeValueDistribution = {attributeID: {value: 0 for value in existingAttributes[attributeID]} for attributeID in existingAttributes}
-            self.numericThresholds = numericThresholds         
+            self.numericThresholds = numericThresholds        
+            self.majorityAttributes = majorityAttributeValues
         else:
             self.attributes = {i:{} for i in range(len(termList[0]) - 1)}
             if hasNumerics:
                 self.numericThresholds = {}
             else:
                 self.numericThresholds = None
+
+            if unknownIsMajority:
+                self.majorityAttributes = {}
+            else:
+                self.majorityAttributes = None
             #Tracks how many rows with each attribute value
             self.attributeValueDistribution = {i:{} for i in range(len(termList[0]) - 1)}       
     
@@ -57,37 +63,41 @@ class DataSet():
          
         #Determine if unknown values should be moved into the majority attribute value
         if unknownIsMajority:
-            self.redistributeUnknowns()
+            self.redistributeUnknowns(majorityAttributeValues)
+        
 
         # print(self.numericAttributes)
         
         # print(self.attributeValueDistribution)
                        
 
-    def redistributeUnknowns(self):
+    def redistributeUnknowns(self, majorityAttributeValues):
         for attributeID in self.attributes: 
-            if attributeID not in self.numericAttributes and 'unknown' in self.attributes[attributeID]:
-                # print("\npredistribution: ")
-                # print(str(self.attributeValueDistribution[attributeID]))
-                attributeValues = self.attributes[attributeID]["unknown"]
-                unknownRows = [row for label in attributeValues for row in attributeValues[label]]
+            if 'unknown' in self.attributes[attributeID]:
+                    attributeValues = self.attributes[attributeID]["unknown"]
+                    unknownRows = [row for label in attributeValues for row in attributeValues[label]]
 
-                attribute = self.attributes[attributeID]
-                attribute.pop("unknown")
-                self.attributeValueDistribution[attributeID].pop("unknown") 
-                majorityValue = self.majorityAttributeValue(attributeID)
+                    attribute = self.attributes[attributeID]
+                    attribute.pop("unknown")
+                    self.attributeValueDistribution[attributeID].pop("unknown") 
+
+                    if majorityAttributeValues == None:
+                        majorityValue = self.majorityAttributeValue(attributeID)
+                    else:
+                        majorityValue = self.majorityAttributes[attributeID]
+                    
+                    for row in unknownRows:
+                        attributeValue = attribute[majorityValue]
+                        label = row[-1]
+                        if label not in attributeValue:
+                            attributeValue[label] = []
                 
-                for row in unknownRows:
-                    attributeValue = attribute[majorityValue]
-                    label = row[-1]
-                    if label not in attributeValue:
-                        attributeValue[label] = []
-            
-                    attributeValue[label].append(row)
+                        attributeValue[label].append(row)
 
-                self.attributeValueDistribution[attributeID][majorityValue] += len(unknownRows)
-                # print("\npostdistribution: ")
-                # print(str(self.attributeValueDistribution[attributeID]))
+                    self.attributeValueDistribution[attributeID][majorityValue] += len(unknownRows)
+
+                    self.majorityAttributes[attributeID] = majorityValue
+
 
     #Distributes numeric values into binary groups. greater than less than median
     def splitNumerics(self):
@@ -129,7 +139,7 @@ class DataSet():
 
         attributeValue = self.attributes[attributeID][attributeValue]
         dataSetRows = [row for label in attributeValue for row in attributeValue[label]]
-        return DataSet(dataSetRows, self.attributes, self.numericThresholds, self.hasNumerics, self.unknownMajority)
+        return DataSet(dataSetRows, self.attributes, self.majorityAttributes, self.numericThresholds, self.hasNumerics, self.unknownMajority)
     
     def mostCommonLabel(self):
         #print("number of labels " + str(len(self.labels)))
@@ -139,7 +149,8 @@ class DataSet():
             if len(self.labels[label]) > maxCount:
                 maxCount = len(self.labels[label])
                 commonLabel = label
-              
+
+        if maxCount < 0: return 0 
         return commonLabel
     
     def hasSameLabel(self):
@@ -156,10 +167,9 @@ class DataSet():
         attributeValueCounts = self.attributeValueDistribution[attributeID]
         majorityAttributeValue = None
         maxCount = float("-inf")
+       
         for value in attributeValueCounts:
-            
-            if attributeValueCounts[value] == "unknown": continue
-                
+            if value == "unknown": continue
             if attributeValueCounts[value] > maxCount:
                 majorityAttributeValue = value
                 maxCount = attributeValueCounts[value]
@@ -170,6 +180,9 @@ class DataSet():
     def attributeValueWeight(self, attributeID, attributeValue):
         if self.hasNumerics and attributeID in self.numericAttributes:
             attributeValue = self.determineNumericValue(attributeID, attributeValue)
+
+        if self.unknownMajority and attributeValue == "unknown":
+            attributeValue = self.majorityAttributeValue(attributeID)
 
         return self.attributeValueDistribution[attributeID][attributeValue]/self.Count
     
@@ -199,14 +212,13 @@ class DataSet():
                 else: 
                     attributeLabelCount[attributeValue][label] = 0
 
-        # print("attribute proportions")
         return attributeLabelCount
     
     def determineNumericValue(self, attributeID, numeric):
-        value = 0
+        value = 1
         median = self.numericThresholds[attributeID]
         if int(numeric) <= median:
-            value = 1
+            value = 0
 
         return value
     

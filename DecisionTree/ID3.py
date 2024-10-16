@@ -2,7 +2,7 @@ import Heuristics
 import DataSet
 import sys
 class ID3Tree:
-    def __init__(self, dataSet, heuristic= "informationGain", depthLimit= 6, ):
+    def __init__(self, dataSet, heuristic, depthLimit):
         if heuristic not in dir(Heuristics):
             raise AttributeError("Heuristic not found")
 
@@ -29,7 +29,7 @@ class ID3Tree:
                 return currNode.branches[value]
 
     def ID3(self, dataSet, currDepth):
-        if dataSet.hasSameLabel() or currDepth > self.depthLimit:      
+        if dataSet.hasSameLabel() or currDepth > self.depthLimit:   
             return dataSet.mostCommonLabel()
         
         #Create a root node 
@@ -50,12 +50,7 @@ class ID3Tree:
         setHeuristic = self.heuristic(dataSet.labelProportions())
         attributeSum = 0
         attributeProportions = dataSet.attributeValueProportions(attributeID)
-        # if attributeID == 14:
-        #     print("attribute proportions: " + str(attributeProportions))
         for value in attributeProportions:
-            if self.data.hasNumerics and self.data.isNumericAttribute(attributeID):
-                value = self.data.determineNumericValue(attributeID, value)
-
             if self.data.unknownMajority and value == "unknown":
                 value = self.data.majorityAttributeValue(attributeID)
 
