@@ -8,7 +8,7 @@ class BatchGradient:
         self.termList = readFile(CSVFile)
         self.numberOfFeatures = len(self.termList[0]) - 1
         self.outputIndex = len(self.termList[0]) - 1
-        self.weights = [-1, -1, 1, -1]#np.array([0 for i in range(numberOfFeatures)])
+        self.weights = np.array([0 for i in range(numberOfFeatures)])
         self.xPoints = []
         self.yPoints = []
         self.learningRate = learningRate
@@ -27,13 +27,10 @@ class BatchGradient:
             self.yPoints.append(meanSquaredError(self.termList, newWeight))
             if isConverging(self.weights, newWeight):
                 break
-            print(errorGradient)
+
             self.weights = self.weights - self.learningRate*errorGradient
-            break
-            # print("weights "  + str(self.weights))
-            # print("error gradient " + str(errorGradient))
-            # print("cost " + str(totalCost))
-            # print("error " + str(meanSquaredError(self.termList, self.weights)))
+
+
 
     def computeGradient(self):
         weightgradient = np.array([0 for i in range(numberOfFeatures)])
