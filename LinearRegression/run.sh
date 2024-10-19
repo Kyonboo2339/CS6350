@@ -1,0 +1,1 @@
+python3 GradientDescent.py concrete/concrete/train.csv concrete/concrete/test.csv
