@@ -22,8 +22,9 @@ def half(x):
 func = np.vectorize(half)
 
 a = np.ones(shape=(3,3))
-b = np.array([[1,2,3]])
-print(a*b)
+a = np.array([[1,2]])
+b = np.array([[1,2,3], [1,2,3]])
+print(a.T*b)
 # print(np.sum(layer_1, axis=0, keepdims=True))
 
 
